@@ -1,3 +1,38 @@
 from django.shortcuts import render
 
+from .models import Book, BookInstance, Author, Genre
+
 # Create your views here.
+
+def index(request):
+	'''View function for the home page of the site.'''
+
+	# Object counts
+	num_books = Book.objects.all().count()
+	num_authors = Author.objects.count() # all implied
+	num_instances = BookInstance.objects.all().count()
+
+	# Available books, a=available
+	num_instances_available = BookInstance.objects.filter(status__exact='a').count()
+
+	num_genre_fantasy = Genre.objects.filter(name__iexact='fantasy').count()
+	num_genre_drama = Genre.objects.filter(name__iexact='drana').count()
+
+	num_book_topaz = Book.objects.filter(title__iexact='topaz').count()
+	num_book_c = Book.objects.filter(title__iexact='sobre').count()
+	
+	context = {
+		'num_books' : num_books,
+		'num_authors' : num_authors,
+		'num_instances' : num_instances,
+		'num_instances_available' : num_instances_available,
+
+		'num_genre_fantasy' : num_genre_fantasy,
+		'num_genre_drama' : num_genre_drama,
+
+		'num_book_topaz' : num_book_topaz,
+		'num_book_c' : num_book_c,
+	}
+
+	# render in template with data provided in context
+	return render(request, 'index.html', context=context)
