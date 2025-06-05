@@ -1,0 +1,28 @@
+{% extends "base_generic.html" %}
+
+{% block title %}
+	<title>Local Library</title>
+{% endblock %}
+
+{% block content %}
+	<h1>Local library home</h1>
+	<p>Welcome to LocalLibrary, a website developed by <em>Mozilla Developer Network</em></p>
+	<h2>Dynamic content</h2>
+	<p>The library has the following record counts:</p>
+	<ul>
+		<li><strong>Books:</strong> {{ num_books }}</li>
+		<li><strong>Copies:</strong> {{ num_instances }}</li>
+		<li><strong>Copies available:</strong> {{ num_copies_available }}</li>
+		<li><strong>Authors:</strong> {{ num_authors }}</li>
+	</ul>
+	<p>The following genres are present:</p>
+	<ul>
+		<li><strong>Fantasy:</strong> {{ num_genre_fantasy }}</li>
+		<li><strong>Drama:</strong> {{ num_genre_drama }}</li>
+	</ul>
+	<p>The following books are present:</p>
+	<ul>
+		<li><strong>TOPAZ:</strong> {{ num_book_topaz }}</li>
+		<li><strong>Campana sobre campana:</strong> {{ num_book_c }}</li>
+	</ul>
+{% endblock %}
