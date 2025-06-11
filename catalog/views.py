@@ -38,11 +38,13 @@ def index(request):
 	# render in template with data provided in context
 	return render(request, 'index.html', context=context)
 
+# Book views
+
 class BookListView(generic.ListView):
 	model = Book
 
 	context_object_name = 'book_list' # list name
-	paginate_by = 3
+	paginate_by = 10
 
 	# def get_queryset(self):
 	#	return Book.objects.filter(title__icontains='campana')[:5]
@@ -50,4 +52,13 @@ class BookListView(generic.ListView):
 class BookDetailView(generic.DetailView):
 	model = Book
 
-	
+# Author views
+
+class AuthorListView(generic.ListView):
+	model = Author
+
+	context_object_name = 'author_list'
+	paginate_by = 10
+
+class AuthorDetailView(generic.DetailView):
+	model = Author
