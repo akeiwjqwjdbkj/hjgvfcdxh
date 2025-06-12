@@ -21,6 +21,11 @@ def index(request):
 
 	num_book_topaz = Book.objects.filter(title__iexact='topaz').count()
 	num_book_c = Book.objects.filter(title__iexact='sobre').count()
+
+	# Number of visits in the view, counted via session variable
+	num_visits = request.session.get('num_visits', 0)
+	num_visits += 1
+	request.session['num_visits'] = num_visits
 	
 	context = {
 		'num_books' : num_books,
@@ -33,6 +38,8 @@ def index(request):
 
 		'num_book_topaz' : num_book_topaz,
 		'num_book_c' : num_book_c,
+
+		'num_visits' : num_visits,
 	}
 
 	# render in template with data provided in context
