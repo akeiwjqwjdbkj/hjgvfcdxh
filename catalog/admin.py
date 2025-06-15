@@ -7,6 +7,9 @@ from .models import Author, Genre, Book, BookInstance, Language
 # username: asdfasdf, email@email.com
 # password: p5bbw0rd
 
+# user I
+# username : alberto , password : wasdfwas
+
 class BooksInstanceInline(admin.TabularInline):
 	model = BookInstance
 	extra = 0
