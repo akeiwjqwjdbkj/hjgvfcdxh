@@ -10,6 +10,9 @@ from .models import Author, Genre, Book, BookInstance, Language
 # user I
 # username : alberto , password : wasdfwas
 
+# user II
+# username : bulbito , password : quesg5is
+
 class BooksInstanceInline(admin.TabularInline):
 	model = BookInstance
 	extra = 0

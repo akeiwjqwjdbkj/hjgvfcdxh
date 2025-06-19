@@ -26,9 +26,13 @@
 							<li><a href="{% url 'books' %}">All books</a></li>
 							<li><a href="{% url 'authors' %}">All authors</a></li>
 
+							{% if perms.catalog.can_mark_returned %}
+								<li><a href="{% url 'all_borrowed' %}">All borrowed</a></li>
+							{% endif %}
+
 							{% if user.is_authenticated %}
 								<li>User : {{ user.get_username }}</li>
-								<li><a href="{% url 'my_borrowed' %}">My Borrowed</a></li>
+								<li><a href="{% url 'my_borrowed' %}">My borrowed</a></li>
 								<li> <!-- Log out -->
 									<form id="logout-form" method="post" action="{% url 'logout' %}">
 										{% csrf_token %}
