@@ -1,10 +1,16 @@
-from django.shortcuts import render
+from django.shortcuts import render, get_object_or_404
 from django.views import generic
+
+from django.http import HttpResponseRedirect
+from django.urls import reverse
 
 from django.contrib.auth.decorators import login_required, permission_required
 from django.contrib.auth.mixins import LoginRequiredMixin, PermissionRequiredMixin
 
+import datetime
+
 from .models import Book, BookInstance, Author, Genre
+from catalog.forms import RenewBookForm
 
 # Create your views here.
 
@@ -47,6 +53,47 @@ def index(request):
 
 	# render in template with data provided in context
 	return render(request, 'index.html', context=context)
+
+@login_required
+@permission_required('catalog.can_mark_returned', raise_exception=True)
+def renew_book_librarian(request, pk):
+	# get object with primary key, return Http404 if it doesn't exist
+	book_instance = get_object_or_404(BookInstance, pk=pk)
+
+	# If POST request process form data
+	if request.method == 'POST':
+		# Create form instance and populate with data from request (binding)
+		form = RenewBookForm(request.POST)
+
+		if form.is_valid():
+			# process the data in form.cleared_data as required (write to model due_back field)
+			# ensure sanitization, validation, conversion to more 'friendly' data types
+			book_instance.due_back = form.cleaned_data['renewal_date']
+			book_instance.save()
+
+			# redirect to success
+			return HttpResponseRedirect(reverse('all_borrowed'))
+		else:
+			# doesn't work when producing renewal dates?
+			context = {
+				'form' : form,
+				'book_instance' : book_instance,
+			}
+
+			return render(request, 'catalog/book_renew_librarian.html', context)
+	
+	# Produce default form for other methods like GET
+	else:
+		# default - 3 weeks
+		proposed_renewal_date = datetime.date.today() + datetime.timedelta(weeks=3)
+		form = RenewBookForm(initial={ 'renewal_date' : proposed_renewal_date })
+
+		context = {
+			'form' : form,
+			'book_instance' : book_instance,
+		}
+
+		return render(request, 'catalog/book_renew_librarian.html', context)
 
 # Book views
 

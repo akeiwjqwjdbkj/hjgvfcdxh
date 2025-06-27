@@ -11,6 +11,10 @@
 						{{ bookinst.book.title }}
 					</a>
 					<br>
+					{% if perms.catalog.can_mark_returned %}
+						<a href="{% url 'renew_book_librarian' bookinst.id %}">Renew</a>
+					{% endif %}
+					<br>
 					<b>Due back : </b> {{ bookinst.due_back }}
 					<br>
 					<b>Borrowed by : </b> {{ bookinst.borrower }}
@@ -19,6 +23,6 @@
 			{% endfor %}
 		</ul>
 	{% else %}
-
+		<p>There are no books borrowed.</p>
 	{% endif %}
 {% endblock %}
