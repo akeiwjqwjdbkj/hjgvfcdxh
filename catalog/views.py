@@ -181,3 +181,27 @@ class AuthorDelete(PermissionRequiredMixin, DeleteView):
 			return HttpResponseRedirect(self.success_url)
 		except Exception as e:
 			return HttpResponseRedirect(reverse('author_delete'), kwargs={ 'pk' : self.object.pk })
+
+# Book modification views
+
+class BookCreate(PermissionRequiredMixin, CreateView):
+	model = Book
+	fields = { 'title', 'author', 'summary', 'isbn', 'genre' }
+	permission_required = 'catalog.create_book'
+
+class BookUpdate(PermissionRequiredMixin, UpdateView):
+	model = Book
+	fields = { 'title', 'author', 'summary', 'isbn', 'genre'}
+	permission_required = 'catalog.update_book'
+
+class BookDelete(PermissionRequiredMixin, DeleteView):
+	model = Book
+	success_url = reverse_lazy('books')
+	permission_required = 'catalog.delete_book'
+
+	def form_valid(self, form):
+		try:
+			self.object.delete()
+			return HttpResponseRedirect(self.success_url)
+		except Exception as e:
+			return HttpResponseRedirect(reverse('book_delete'), kwargs={ 'pk' : self.object.pk })
