@@ -50,6 +50,10 @@
 							{% if perms.catalog.add_author %}
 								<li><a href="{% url 'author_create' %}">Create author</a></li>
 							{% endif %}
+
+							{% if perms.catalog.add_book %}
+								<li><a href="{% url 'book_create' %}">Create book</a></li>
+							{% endif %}
 						</ul>
 					{% endblock %}
 				</div>
