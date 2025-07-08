@@ -1,10 +1,12 @@
 from django.db import models
 
 from django.urls import reverse # Use for get_absolute_url()
+from django.conf import settings
 from django.db.models import UniqueConstraint # Constrain fields to unique values
 from django.db.models.functions import Lower # Return lower case value
 
 import uuid
+from datetime import date
 
 # Create your models here.
 
@@ -66,7 +68,7 @@ class Book(models.Model):
 	
 	def get_absolute_url(self):
 		'''Returns the URL to access a detail record for this book.'''
-		return reverse('book-detail', args=[str(self.id)])
+		return reverse('book_detail', args=[str(self.id)])
 	
 class BookInstance(models.Model):
 	"""Model representing a specific copy of a book (that can be borrowed from the library)"""
@@ -95,9 +97,21 @@ class BookInstance(models.Model):
 		default='m',
 		help_text='Book availability'
 	)
+	borrower = models.ForeignKey(
+		settings.AUTH_USER_MODEL,
+		on_delete=models.SET_NULL,
+		null=True,
+		blank=True
+	)
 
 	class Meta:
 		ordering = ['due_back']
+		permissions = (('can_mark_returned', 'Set book as returned'),)
+
+	@property
+	def is_overdue(self):
+		"""Determines if the book is overdue based on the due date and the current date."""
+		return bool(self.due_back and date.today() > self.due_back)
 	
 	def __str__(self):
 		"""String for representing the Model object."""
@@ -117,7 +131,7 @@ class Author(models.Model):
 	
 	def get_absolute_url(self):
 		"""Returns the URL to access a particular author instance."""
-		return reverse('author-detail', args=[str(self.id)])
+		return reverse('author_detail', args=[str(self.id)])
 	
 	def __str__(self):
 		"""String for representing the Model object."""

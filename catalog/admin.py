@@ -7,6 +7,12 @@ from .models import Author, Genre, Book, BookInstance, Language
 # username: asdfasdf, email@email.com
 # password: p5bbw0rd
 
+# user I
+# username : alberto , password : wasdfwas
+
+# user II
+# username : bulbito , password : quesg5is
+
 class BooksInstanceInline(admin.TabularInline):
 	model = BookInstance
 	extra = 0
@@ -38,7 +44,7 @@ class BookInstanceAdmin(admin.ModelAdmin):
 
 	fieldsets = (
 		(None, { 'fields' : ('book', 'imprint', 'id') }),
-		('Availability', { 'fields' : ('status', 'due_back') }),
+		('Availability', { 'fields' : ('status', 'due_back', 'borrower') }),
 	)
 
 @admin.register(Language)
