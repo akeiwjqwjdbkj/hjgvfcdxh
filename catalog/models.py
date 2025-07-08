@@ -1,10 +1,12 @@
 from django.db import models
 
 from django.urls import reverse # Use for get_absolute_url()
+from django.conf import settings
 from django.db.models import UniqueConstraint # Constrain fields to unique values
 from django.db.models.functions import Lower # Return lower case value
 
 import uuid
+from datetime import date
 
 # Create your models here.
 
@@ -95,9 +97,21 @@ class BookInstance(models.Model):
 		default='m',
 		help_text='Book availability'
 	)
+	borrower = models.ForeignKey(
+		settings.AUTH_USER_MODEL,
+		on_delete=models.SET_NULL,
+		null=True,
+		blank=True
+	)
 
 	class Meta:
 		ordering = ['due_back']
+		permissions = (('can_mark_returned', 'Set book as returned'),)
+
+	@property
+	def is_overdue(self):
+		"""Determines if the book is overdue based on the due date and the current date."""
+		return bool(self.due_back and date.today() > self.due_back)
 	
 	def __str__(self):
 		"""String for representing the Model object."""
