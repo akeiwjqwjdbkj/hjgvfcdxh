@@ -1,11 +1,13 @@
 
 import datetime
+import uuid
 
 from django.test import TestCase
 from django.urls import reverse
 from django.utils import timezone
 
 from django.contrib.auth import get_user_model
+from django.contrib.auth.models import Permission # Required to grant permission to set book returned
 
 from catalog.models import Author, BookInstance, Book, Genre, Language
 
@@ -160,3 +162,55 @@ class LoanedBookInstancesByUserListViewTest(TestCase):
 		self.assertEqual(str(response.content['user']), 'testuser1')
 		# Verify "successful" response
 		self.assertEqual(response.status_code, 200)
+
+class RenewBookInstancesViewTest(TestCase):
+	def setUp(self):
+		# Create users
+		test_user1 = User.objects.create_user(username='testuser1', password='1X<ISRUkw+tuK')
+		test_user2 = User.objects.create_user(username='testuser2', password='2HJ1vRV0Z&3iD')
+
+		test_user1.save()
+		test_user2.save()
+
+		# Give test_user 2 permission to renew books
+		permission = Permission.objects.get(name='Set book as returned')
+		test_user2.user_permissions.add(permission)
+		test_user2.save()
+
+		# Create book
+		test_author = Author.objects.create(first_name='Dominique', last_name='Rousseau')
+		test_genre = Genre.objects.create(name='Fantasy')
+		test_language = Language.objects.create(name='English')
+		test_book = Book.objects.create(
+			title = 'Book title',
+			summary = 'My book summary',
+			isbn = 'ABCDEFG',
+			author = test_author,
+			language = test_language
+		)
+
+		# Post-step : Create genre
+		genre_objects_for_book = Genre.objects.all()
+		test_book.genre.set(genre_objects_for_book) # Direct assignment of many-to-many types not allowed
+		test_book.save()
+
+		# Create BookInstance object for test_user1
+		return_date = datetime.date.today() + datetime.timedelta(days=5)
+		self.test_bookinstance1 = BookInstance.objects.create(
+			book = test_book,
+			imprint = 'Unlikely Imprint, 2016',
+			due_back = return_date,
+			borrower = test_user1,
+			status = 'o'
+		)
+
+		# Create BookInstance object for test_user2
+		return_date = datetime.date.today() + datetime.timedelta(days=5)
+		self.test_bookinstance2 = BookInstance.objects.create(
+			book=test_book,
+			imprint='Unlikely Imprint, 2016',
+			due_back=return_date,
+			borrower=test_user2,
+			status='o'
+		)
+		
