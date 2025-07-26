@@ -55,6 +55,7 @@ class Book(models.Model):
 	# Genre can contain many books, and books can cover many genres
 	# Genre class has already been defined so we can specify object above
 	genre = models.ManyToManyField(Genre, help_text="Select a genre for this book")
+	language = models.ForeignKey('Language', on_delete=models.RESTRICT, null=True)
 
 	def display_genre(self):
 		"""Create a string for the Genre to display genre in Admin."""
@@ -142,7 +143,7 @@ class Language(models.Model):
 
 	# Fields
 	
-	name = models.CharField(max_length=100, help_text='Language of the book.')
+	name = models.CharField(max_length=100, help_text='Language of the book.', default='English')
 
 	def __str__(self):
 		return self.name
