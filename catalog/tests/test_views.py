@@ -1,6 +1,7 @@
 
 import datetime
 import uuid
+import random
 
 from django.test import TestCase
 from django.urls import reverse
@@ -9,8 +10,9 @@ from django.utils import timezone
 from django.contrib.auth import get_user_model
 from django.contrib.auth.models import Permission # Required to grant permission to set book returned
 
-from catalog.models import Author, BookInstance, Book, Genre, Language
+from django.contrib.contenttypes.models import ContentType
 
+from catalog.models import Author, BookInstance, Book, Genre, Language
 User = get_user_model()
 
 class AuthorListViewTest(TestCase):
@@ -315,3 +317,72 @@ class RenewBookInstancesViewTest(TestCase):
 			'renewal_date',
 			'Invalid date - renewal more than 4 weeks ahead'
 		)
+
+class AuthorCreateViewTest(TestCase):
+	# check access, initial date, used template, redirect successful
+	def setUp(self):
+		# Create user
+		test_user1 = User.objects.create_user(username='test_user1', password='1X<ISRUkw+tuK')
+		test_user2 = User.objects.create_user(username='test_user2', password='2HJ1vRV0Z&3iD')
+
+		content_typeAuthor = ContentType.objects.get_for_model(Author)
+		permAddAuthor = Permission.objects.get(codename='add_author', content_type=content_typeAuthor)
+
+		test_user1.user_permissions.add(permAddAuthor)
+
+		test_user1.save()
+		test_user2.save()
+		# return super().setUp() # to change
+	
+	def test_redirect_if_not_logged_in(self):
+		response = self.client.get(reverse('author_create'))
+		# Check URL
+		self.assertEqual(response.status_code, 302)
+		# will cause redirect to logiin page
+		self.assertTrue(response.url.startsWith('/accounts/login/'))
+	
+	def test_forbidden_if_logged_in_but_incorrect_permission(self):
+		# test_user2 does not have correct permissions
+		login = self.client.login(username='test_user2', password='2HJ1vRV0Z&3iD')
+		response = self.client.get(reverse('author_create'))
+		self.assertEqual(response.status_code, 403)
+	
+	def test_logged_in_with_permission(self):
+		# test_user1 should have correct permission to create authors
+		login = self.client.login(username='test_user1', password='1X<ISRUkw+tuK')
+		response = self.client.get(reverse('author_create'))
+		self.assertEqual(response.status_code, 200) # Verify success
+
+	def test_uses_correct_template(self):
+		login = self.client.login(username='test_user', password='')
+		response = self.client.get(reverse('author_create'))
+		
+		self.assertEqual(response.status_code, 200)
+		self.assertTemplateUsed(response, 'catalog/author_create.html') # !!
+
+	def test_redirects_to_created_author(self):
+		login = self.client.login(username='test_user1', password='1X<ISRUkw+tuK')
+		
+		valid_birth_date = datetime.date.today() - datetime.timedelta(weeks=(random.random()*100))
+		valid_death_date = datetime.date.today() - datetime.timedelta(weeks=(random.random()*30))
+
+		response = self.client.post(reverse('author_create'), {
+			'first_name' : 'Test',
+			'last_name' : 'Test',
+			'date_of_birth' : valid_birth_date,
+			'date_of_death' : valid_death_date
+		})
+		current_num_authors = Author.objects.all().count()
+		# Ensure redirect to created author
+		self.assertRedirects(response, reverse('author_detail', kwargs={
+			'pk' : current_num_authors
+		}))
+	
+	def test_initial_date_of_death(self):
+		login = self.client.login(username='testuser1', password='1X<ISRUkw+tuK')
+		response = self.client.get(reverse('author_create'))
+
+		self.assertEqual(response.status_code, 200)
+
+		inital_date = '11/11/2025'
+		self.assertEqual(response.context['form'].initial['date_of_death'], inital_date)
