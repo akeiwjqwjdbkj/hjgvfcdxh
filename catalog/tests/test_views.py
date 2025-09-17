@@ -334,11 +334,11 @@ class AuthorCreateViewTest(TestCase):
 		test_user2.save()
 		# return super().setUp() # to change
 	
-	def test_redirect_if_not_logged_in(self):
+	def test_redirect_if_not_logged_in(self): #
 		response = self.client.get(reverse('author_create'))
 		# Check URL
 		self.assertEqual(response.status_code, 302)
-		# will cause redirect to logiin page
+		# will cause redirect to login page
 		self.assertTrue(response.url.startsWith('/accounts/login/'))
 	
 	def test_forbidden_if_logged_in_but_incorrect_permission(self):
@@ -378,11 +378,11 @@ class AuthorCreateViewTest(TestCase):
 			'pk' : current_num_authors
 		}))
 	
-	def test_initial_date_of_death(self):
+	def test_initial_date_of_death(self): #
 		login = self.client.login(username='testuser1', password='1X<ISRUkw+tuK')
 		response = self.client.get(reverse('author_create'))
 
 		self.assertEqual(response.status_code, 200)
 
-		inital_date = '11/11/2025'
+		inital_date = datetime.date(2025, 11, 11)
 		self.assertEqual(response.context['form'].initial['date_of_death'], inital_date)
