@@ -31,7 +31,9 @@ SECRET_KEY = os.environ.get('DJANGO_SECRET_KEY', 'django-insecure-tw(xzcj5mq^6wf
 # DEBUG = True
 DEBUG = os.environ.get('DJANGO_DEBUG', '') != 'False'
 
-ALLOWED_HOSTS = []
+ALLOWED_HOSTS = ['pdskjksvn.pythonanywhere.com', '127.0.0.1']
+
+CSRF_TRUSTED_ORIGINS = ['https://pdskjksvn.pythonanywhere.com']
 
 env_path = load_dotenv(os.path.join(BASE_DIR, '.env'))
 load_dotenv(env_path)
